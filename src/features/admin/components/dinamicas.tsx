@@ -22,6 +22,7 @@ const CAMPOS: (keyof CambiosConfig)[] = [
   "cashback_activo",
   "nombre_puntos",
   "cashback_pct",
+  "cashback_puntos_por_peso",
   "puntos_bienvenida",
   "sellos_activos",
   "sellos_titulo",
