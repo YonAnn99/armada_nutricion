@@ -22,6 +22,7 @@ import type { ConfigLealtad, Nivel, ResultadoCompra, TarjetaStaff } from "@/feat
 import { formatearTelefono } from "@/lib/telefono";
 import { formatMXN, formatMXN0 } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { sanearNumero, parsearNumero, dentroDeRango } from "@/lib/numeros";
 
 interface Formulario {
   total: string;
@@ -270,16 +271,20 @@ export function PanelValidacion({
             </span>
             <input
               id="total"
+              type="text"
               inputMode="decimal"
               autoFocus
               autoComplete="off"
               value={f.total}
-              onChange={(e) => cambiar({ total: e.target.value })}
+              onChange={(e) => cambiar({ total: sanearNumero(e.target.value, { decimal: true, min: 0 }) })}
               placeholder="0"
               aria-invalid={f.total !== "" && !totalValido}
               aria-describedby="total-ayuda"
               className="font-display tabular h-full min-w-0 flex-1 bg-transparent text-3xl font-black outline-none placeholder:text-muted-foreground/60"
             />
+            {!dentroDeRango(totalNum, { min: 0 }) && f.total !== "" && (
+              <p className="text-[10px] text-red-300" role="alert">Mínimo 0</p>
+            )}
           </div>
           <p id="total-ayuda" className="text-xs text-muted-foreground">
             Lo que pagó el cliente, ya con descuentos y puntos.
@@ -315,12 +320,16 @@ export function PanelValidacion({
                 <div className="mt-2 flex items-center gap-2">
                   <span className="text-sm text-muted-foreground">$</span>
                   <Input
+                    type="text"
                     inputMode="numeric"
                     value={f.puntos}
-                    onChange={(e) => cambiar({ puntos: e.target.value.replace(/\D/g, "") })}
+                    onChange={(e) => cambiar({ puntos: sanearNumero(e.target.value, { decimal: false, max: tarjeta.puntos }) })}
                     className="h-9 w-28"
                     aria-label="Puntos a canjear"
                   />
+                  {!dentroDeRango(parsearNumero(f.puntos), { min: 0, max: tarjeta.puntos }) && f.puntos !== "" && (
+                    <span className="text-[10px] text-red-300" role="alert">Máx. {tarjeta.puntos}</span>
+                  )}
                   <span className="text-xs text-muted-foreground">de {tarjeta.puntos}</span>
                 </div>
               )}

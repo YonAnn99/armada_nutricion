@@ -27,6 +27,7 @@ import { copiar } from "@/lib/portapapeles";
 import { aE164, desdeE164 } from "@/lib/telefono";
 import { formatMXN } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import { sanearNumero, parsearNumero, dentroDeRango } from "@/lib/numeros";
 
 type Seccion = "datos" | "ajuste" | "historial";
 
@@ -387,16 +388,21 @@ function Delta({
   onCambio: (v: string) => void;
   decimal?: boolean;
 }) {
+  const n = parsearNumero(valor);
+  const fuera = decimal ? !dentroDeRango(n, { min: 0 }) : !dentroDeRango(n, { min: -999999 });
   return (
     <div className="space-y-1.5 rounded-2xl bg-black/30 p-3">
       <Label className="text-xs">{etiqueta}</Label>
       <p className="text-[11px] text-muted-foreground">Actual: {actual}</p>
       <Input
+        type="text"
         inputMode={decimal ? "decimal" : "numeric"}
         value={valor}
-        onChange={(e) => onCambio(e.target.value.replace(decimal ? /[^\d.-]/g : /[^\d-]/g, ""))}
+        onChange={(e) => onCambio(sanearNumero(e.target.value, { decimal, negativo: true }))}
         aria-label={`Cambio en ${etiqueta}`}
+        aria-invalid={fuera}
       />
+      {fuera && <p className="text-[10px] text-red-300" role="alert">Mínimo 0</p>}
     </div>
   );
 }

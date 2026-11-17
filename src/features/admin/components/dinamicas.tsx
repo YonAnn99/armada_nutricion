@@ -14,6 +14,7 @@ import { hoyMexico, ICONOS_SELLO } from "@/features/lealtad/motor";
 import { guardarConfig, guardarNiveles, mensajeDeError, type CambiosConfig } from "@/features/lealtad/servicio";
 import type { ConfigAdmin, Nivel, TarjetaBase, TarjetaStaff } from "@/features/lealtad/types";
 import { cn } from "@/lib/utils";
+import { sanearNumero, parsearNumero, dentroDeRango } from "@/lib/numeros";
 
 const CAMPOS: (keyof CambiosConfig)[] = [
   "niveles_activos",
@@ -169,24 +170,34 @@ export function Dinamicas({
                 </Campo>
                 <Campo etiqueta={i === 0 ? "% desc." : undefined}>
                   <Input
-                    type="number"
-                    min={0}
-                    max={50}
-                    value={n.descuento_pct}
-                    onChange={(e) => setNs(ns.map((x, j) => (j === i ? { ...x, descuento_pct: Number(e.target.value) } : x)))}
+                    type="text"
+                    inputMode="numeric"
+                    value={String(n.descuento_pct)}
+                    onChange={(e) => {
+                      const t = sanearNumero(e.target.value, { decimal: true, max: 50 });
+                      setNs(ns.map((x, j) => (j === i ? { ...x, descuento_pct: parsearNumero(t) } : x)));
+                    }}
                     aria-label={`Descuento del nivel ${i + 1}`}
                   />
+                  {!dentroDeRango(n.descuento_pct, { min: 0, max: 50 }) && (
+                    <p className="text-[10px] text-red-300" role="alert">Rango 0–50</p>
+                  )}
                 </Campo>
                 <Campo etiqueta={i === 0 ? "Desde ($)" : undefined}>
                   <Input
-                    type="number"
-                    min={0}
-                    step={500}
-                    value={n.gasto_minimo}
+                    type="text"
+                    inputMode="numeric"
+                    value={String(n.gasto_minimo)}
                     disabled={i === 0 && n.gasto_minimo === 0}
-                    onChange={(e) => setNs(ns.map((x, j) => (j === i ? { ...x, gasto_minimo: Number(e.target.value) } : x)))}
+                    onChange={(e) => {
+                      const t = sanearNumero(e.target.value, { decimal: true, min: 0 });
+                      setNs(ns.map((x, j) => (j === i ? { ...x, gasto_minimo: parsearNumero(t) } : x)));
+                    }}
                     aria-label={`Gasto mínimo del nivel ${i + 1}`}
                   />
+                  {!dentroDeRango(n.gasto_minimo, { min: 0 }) && (
+                    <p className="text-[10px] text-red-300" role="alert">Mínimo 0</p>
+                  )}
                 </Campo>
                 <Button
                   variant="ghost"
@@ -245,10 +256,32 @@ export function Dinamicas({
               <Input value={b.nombre_puntos} maxLength={30} onChange={(e) => set("nombre_puntos", e.target.value)} />
             </Campo>
             <Campo etiqueta="% de cashback">
-              <Input type="number" min={0} max={50} step={0.5} value={b.cashback_pct} onChange={(e) => set("cashback_pct", Number(e.target.value))} />
+              <Input
+                type="text"
+                inputMode="decimal"
+                value={String(b.cashback_pct)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: true, max: 50 });
+                  set("cashback_pct", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.cashback_pct, { min: 0, max: 50 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Rango 0–50</p>
+              )}
             </Campo>
             <Campo etiqueta="Puntos de bienvenida">
-              <Input type="number" min={0} value={b.puntos_bienvenida} onChange={(e) => set("puntos_bienvenida", Number(e.target.value))} />
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={String(b.puntos_bienvenida)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: false, max: 10000 });
+                  set("puntos_bienvenida", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.puntos_bienvenida, { min: 0, max: 10000 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Rango 0–10000</p>
+              )}
             </Campo>
           </div>
         </Bloque>
@@ -266,13 +299,35 @@ export function Dinamicas({
               <Input value={b.sellos_titulo} maxLength={40} onChange={(e) => set("sellos_titulo", e.target.value)} />
             </Campo>
             <Campo etiqueta="Sellos para el premio (2 a 20)">
-              <Input type="number" min={2} max={20} value={b.sellos_meta} onChange={(e) => set("sellos_meta", Number(e.target.value))} />
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={String(b.sellos_meta)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: false, min: 2, max: 20 });
+                  set("sellos_meta", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.sellos_meta, { min: 2, max: 20 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Mínimo 2, máximo 20</p>
+              )}
             </Campo>
             <Campo etiqueta="Premio" className="sm:col-span-2">
               <Input value={b.sellos_premio} maxLength={80} onChange={(e) => set("sellos_premio", e.target.value)} />
             </Campo>
             <Campo etiqueta="Compra mínima para sumar sello ($)">
-              <Input type="number" min={0} step={50} value={b.compra_minima_sello} onChange={(e) => set("compra_minima_sello", Number(e.target.value))} />
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={String(b.compra_minima_sello)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: true, min: 0 });
+                  set("compra_minima_sello", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.compra_minima_sello, { min: 0 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Mínimo 0</p>
+              )}
             </Campo>
             <Campo etiqueta="Icono del sello">
               <div className="flex items-center gap-2">
@@ -334,7 +389,18 @@ export function Dinamicas({
           onActivo={(v) => set("compartida_activa", v)}
         >
           <Campo etiqueta={`Bono para el titular (${b.nombre_puntos})`} className="max-w-xs">
-            <Input type="number" min={0} value={b.compartida_bono_pts} onChange={(e) => set("compartida_bono_pts", Number(e.target.value))} />
+            <Input
+              type="text"
+              inputMode="numeric"
+              value={String(b.compartida_bono_pts)}
+              onChange={(e) => {
+                const t = sanearNumero(e.target.value, { decimal: false, max: 10000 });
+                set("compartida_bono_pts", parsearNumero(t));
+              }}
+            />
+            {!dentroDeRango(b.compartida_bono_pts, { min: 0, max: 10000 }) && (
+              <p className="text-[10px] text-red-300" role="alert">Rango 0–10000</p>
+            )}
           </Campo>
         </Bloque>
 
@@ -346,7 +412,18 @@ export function Dinamicas({
         >
           <div className="grid gap-3 sm:grid-cols-[160px_1fr]">
             <Campo etiqueta="Inactivo después de (días)">
-              <Input type="number" min={7} max={365} value={b.reactivacion_dias} onChange={(e) => set("reactivacion_dias", Number(e.target.value))} />
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={String(b.reactivacion_dias)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: false, min: 7, max: 365 });
+                  set("reactivacion_dias", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.reactivacion_dias, { min: 7, max: 365 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Mínimo 7, máximo 365</p>
+              )}
             </Campo>
             <Campo etiqueta="Cupón de regreso">
               <Input value={b.reactivacion_texto} maxLength={80} onChange={(e) => set("reactivacion_texto", e.target.value)} />
