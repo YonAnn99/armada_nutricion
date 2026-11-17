@@ -269,7 +269,7 @@ export function Dinamicas({
                 <p className="text-[10px] text-red-300" role="alert">Rango 0–50</p>
               )}
             </Campo>
-            <Campo etiqueta="Puntos por $1 MXN">
+            <Campo etiqueta="Tasa de conversión: puntos por $1 MXN">
               <Input
                 type="text"
                 inputMode="numeric"
@@ -282,6 +282,10 @@ export function Dinamicas({
               {!dentroDeRango(b.cashback_puntos_por_peso, { min: 0.01 }) && (
                 <p className="text-[10px] text-red-300" role="alert">Mínimo 0.01</p>
               )}
+              <p className="text-[10px] text-muted-foreground">
+                Cuántos puntos equivalen a $1 MXN de cashback. El % de arriba define el cashback en pesos; esto define cuántos puntos se ganan por cada $1 de cashback.
+                <br />Ej.: 50 → 50 puntos = $1 MXN. Si el cashback es 5% y la compra es $1000: cashback = $50 MXN → 50 × 50 = 2500 puntos.
+              </p>
             </Campo>
             <Campo etiqueta="Puntos de bienvenida">
               <Input
