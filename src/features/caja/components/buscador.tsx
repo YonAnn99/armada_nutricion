@@ -114,7 +114,6 @@ export function BarraCaja({
                 setResultados(null);
               }
             }}
-            autoFocus
             autoComplete="off"
             spellCheck={false}
             placeholder="Escanea o escribe ARM-101, código, celular o nombre"

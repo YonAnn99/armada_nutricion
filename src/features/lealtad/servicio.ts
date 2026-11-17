@@ -58,7 +58,12 @@ export async function fetchNiveles(): Promise<Nivel[]> {
 
 /** PostgREST devuelve `numeric` como número, pero por si acaso llega texto. */
 function normalizarConfig(c: ConfigAdmin): ConfigAdmin {
-  return { ...c, cashback_pct: Number(c.cashback_pct), compra_minima_sello: Number(c.compra_minima_sello) };
+  return {
+    ...c,
+    cashback_pct: Number(c.cashback_pct),
+    cashback_puntos_por_peso: Number(c.cashback_puntos_por_peso),
+    compra_minima_sello: Number(c.compra_minima_sello),
+  };
 }
 
 export type CambiosConfig = Partial<Omit<ConfigAdmin, "codigo_alta" | "actualizado_en">>;
@@ -165,12 +170,14 @@ export async function registrarCompra(e: EntradaRegistrarCompra): Promise<Result
 export async function crearPaseManual(
   nombre: string,
   telefono: string,
-  mesCumple: number | null
+  mesCumple: number | null,
+  permisos?: Record<"niveles" | "cashback" | "sellos" | "promo" | "cumple" | "compartida", boolean>
 ): Promise<{ estado: "creada" | "existente"; tarjeta: TarjetaStaff }> {
   const { data, error } = await supabase().rpc("crear_pase_manual", {
     p_nombre: nombre,
     p_telefono: telefono,
     p_mes_cumple: mesCumple,
+    p_permisos: permisos ?? null,
   });
   if (error) lanzar(error);
   const r = data as { estado: "creada" | "existente"; tarjeta: TarjetaStaff };

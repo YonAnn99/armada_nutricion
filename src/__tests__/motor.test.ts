@@ -30,6 +30,7 @@ const CONFIG: ConfigLealtad = {
   cashback_activo: true,
   nombre_puntos: "Puntos Armada",
   cashback_pct: 5,
+  cashback_puntos_por_peso: 1,
   puntos_bienvenida: 50,
   sellos_activos: true,
   sellos_titulo: "Sellos de Proteína",

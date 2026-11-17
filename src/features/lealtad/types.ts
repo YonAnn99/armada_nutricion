@@ -31,6 +31,7 @@ export interface ConfigLealtad {
   cashback_activo: boolean;
   nombre_puntos: string;
   cashback_pct: number;
+  cashback_puntos_por_peso: number;
   puntos_bienvenida: number;
   sellos_activos: boolean;
   sellos_titulo: string;

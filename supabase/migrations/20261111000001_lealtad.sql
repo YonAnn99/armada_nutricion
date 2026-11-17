@@ -628,7 +628,7 @@ BEGIN
 
     -- Cashback sobre lo cobrado.
     IF v_config.cashback_activo AND t.permite_cashback THEN
-      v_ganados := floor(v_total * v_config.cashback_pct / 100);
+      v_ganados := floor(v_total * v_config.cashback_pct / 100) * v_config.cashback_puntos_por_peso;
       IF v_ganados > 0 THEN v_resumen := v_resumen || format('+%s %s', v_ganados, v_config.nombre_puntos); END IF;
     END IF;
 

@@ -188,7 +188,6 @@ export function Dinamicas({
                     type="text"
                     inputMode="numeric"
                     value={String(n.gasto_minimo)}
-                    disabled={i === 0 && n.gasto_minimo === 0}
                     onChange={(e) => {
                       const t = sanearNumero(e.target.value, { decimal: true, min: 0 });
                       setNs(ns.map((x, j) => (j === i ? { ...x, gasto_minimo: parsearNumero(t) } : x)));
@@ -247,11 +246,11 @@ export function Dinamicas({
         <Bloque
           icono={<Coins className="h-4 w-4" />}
           titulo={`2. Cashback · ${b.nombre_puntos}`}
-          descripcion="Un porcentaje de cada compra vuelve como puntos (1 punto = $1 MXN)."
+          descripcion="Un porcentaje de cada compra vuelve como puntos. Tasa de conversión: cuántos puntos = $1 MXN."
           activo={b.cashback_activo}
           onActivo={(v) => set("cashback_activo", v)}
         >
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-4">
             <Campo etiqueta="Nombre de los puntos">
               <Input value={b.nombre_puntos} maxLength={30} onChange={(e) => set("nombre_puntos", e.target.value)} />
             </Campo>
@@ -267,6 +266,20 @@ export function Dinamicas({
               />
               {!dentroDeRango(b.cashback_pct, { min: 0, max: 50 }) && (
                 <p className="text-[10px] text-red-300" role="alert">Rango 0–50</p>
+              )}
+            </Campo>
+            <Campo etiqueta="Puntos por $1 MXN">
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={String(b.cashback_puntos_por_peso)}
+                onChange={(e) => {
+                  const t = sanearNumero(e.target.value, { decimal: true, min: 0.01 });
+                  set("cashback_puntos_por_peso", parsearNumero(t));
+                }}
+              />
+              {!dentroDeRango(b.cashback_puntos_por_peso, { min: 0.01 }) && (
+                <p className="text-[10px] text-red-300" role="alert">Mínimo 0.01</p>
               )}
             </Campo>
             <Campo etiqueta="Puntos de bienvenida">

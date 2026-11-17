@@ -318,7 +318,7 @@ export function calcularCompra(
     cupon = e.usarCupon && tarjeta.cupon_reactivacion && !tarjeta.regla_vip;
 
     if (canje > tarjeta.puntos) errores.push(`El cliente solo tiene ${tarjeta.puntos} puntos.`);
-    if (estado.usaCashback) puntosGanados = Math.floor((total * Number(config.cashback_pct)) / 100);
+    if (estado.usaCashback) puntosGanados = Math.floor((total * Number(config.cashback_pct)) / 100) * Number(config.cashback_puntos_por_peso);
 
     if (e.canjearSellos) {
       if (!estado.usaSellos) errores.push("Los sellos no están activos para este cliente.");
